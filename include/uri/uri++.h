@@ -29,7 +29,7 @@ public:
   bool is_local_file() const;
   std::string to_local_file() const;
 
-  std::string to_str() const;
+  std::string str() const;
 
 private:
   bool m_valid = false;

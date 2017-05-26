@@ -54,7 +54,7 @@ std::string Uri::to_local_file() const {
   return m_path;
 }
 
-std::string Uri::to_str() const {
+std::string Uri::str() const {
 
   std::stringstream ss;
   if (m_scheme.length() > 0)
