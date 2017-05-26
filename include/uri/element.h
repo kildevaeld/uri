@@ -1,6 +1,8 @@
 #ifndef URI_PARSER_ELEMENT_H
 #define URI_PARSER_ELEMENT_H
 
+#include "uri.h"
+
 typedef enum {
   Scheme,
   Authority,
@@ -32,17 +34,6 @@ typedef struct Element {
   Token token;
   value_t value;
 } element;
-
-typedef struct {
-  char *scheme;
-  char *host;
-  int port;
-  char *user;
-  char *path;
-  char *query;
-  char *fragment;
-
-} uri_t;
 
 element *mk_hirhierarchical_part(element *path, element *auth);
 element *mk_authority(element *u, element *h, element *p);

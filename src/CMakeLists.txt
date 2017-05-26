@@ -20,3 +20,9 @@ set(SOURCES
 
 add_library(uri ${SOURCES} ${PARSER_OUTPUT})
 add_dependencies(uri GenerateParser)
+
+
+set (CMAKE_CXX_STANDARD 11)
+
+add_library(uri++ uri.cpp)
+target_link_libraries(uri++ uri)

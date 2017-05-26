@@ -4,10 +4,9 @@ typedef int (*yyrule)();
 
 extern int yyparse();
 extern int yyparsefrom(yyrule);
-// extern int yy_References();
-// extern int yy_Notes();
-// extern int yy_Doc();
 extern int yy_start();
+extern const char *charbuf; /* Buffer of characters to be parsed. */
+extern uri_t *parse_result; /* Results of parse. */
 
 uri_t *parse_uri(const char *input) {
   charbuf = input;
