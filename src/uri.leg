@@ -1,0 +1,110 @@
+%{
+#include "uri/element.h"
+#include <stdio.h>
+
+#define YYSTYPE element *
+#ifdef __DEBUG__
+#define YY_DEBUG 1
+#endif
+
+#define YY_INPUT(buf, result, max_size)                                        \
+  {                                                                            \
+    int yyc;                                                                   \
+    if (charbuf && *charbuf != '\0') {                                         \
+      yyc = *charbuf++;                                                        \
+    } else {                                                                   \
+      yyc = EOF;                                                               \
+    }                                                                          \
+    result = (EOF == yyc) ? 0 : (*(buf) = yyc, 1);                             \
+  }
+
+#define YY_RULE(T) T
+
+%}
+
+
+start         =  (s:Scheme ':')? h:hierpart ("?" q:query)? ("#" f:fragment)? EOF {
+  parse_result = mk_uri(s, h, q, f);
+}
+
+Scheme = < alpha (alpha | digit | '+' | '-' | '.' )*>  { $$ = mk_str(yytext); }
+
+hierpart   = "//" a:authority < pathabempty > { $$ = mk_hirhierarchical_part(mk_str(yytext), a); }
+          | < (pathabsolute | pathrootless | pathempty) > { $$ = mk_hirhierarchical_part(mk_str(yytext), 0); }
+
+path          = pathabempty     
+                    | pathabsolute   
+                    | pathnoscheme   
+                    | pathrootless   
+                    | pathempty     
+
+pathabempty  = ( "/" segment )*
+pathabsolute = "/" ( segmentnz ( "/" segment )* )?
+pathnoscheme = segmentnznc ( "/" segment )*
+pathrootless = segmentnz ( "/" segment )*
+pathempty    = ''?
+
+segment       = pchar*
+segmentnz    = pchar+
+segmentnznc =   (unreserved | pctencoded | subdelims | "@")+
+
+pchar         = unreserved | pctencoded | subdelims | ":" | "@"
+
+authority   =  (u:userinfo "@")?  h:host  (":" p:port)? { $$ = mk_authority(u,h,p); }
+
+userinfo    =  < (unreserved | pctencoded | subdelims | ":")+ > { $$ = mk_str(yytext); }
+
+host        = < (IPliteral | IPv4address | regname) > { $$ = mk_str(yytext); }
+
+port        = < digit+ > { $$ = mk_integer(yytext); }
+
+
+IPliteral = "["  (IPv6address | IPvFuture)   "]"
+
+IPvFuture  = "v" hexdigit "." ( unreserved | subdelims | ":" )?
+
+IPv6address =                            ( h16 ":" ){6} ls32
+                  |                       "::" ( h16 ":" ){5} ls32
+                  | [               h16 ] "::" ( h16 ":" ){4} ls32
+                  | [ *1( h16 ":" ) h16 ] "::" ( h16 ":" ){3} ls32
+                  | [ *2( h16 ":" ) h16 ] "::" ( h16 ":" ){2} ls32
+                  | [ *3( h16 ":" ) h16 ] "::"    h16 ":"   ls32
+                  | [ *4( h16 ":" ) h16 ] "::"              ls32
+                  | [ *5( h16 ":" ) h16 ] "::"              h16
+                  | [ *6( h16 ":" ) h16 ] "::"
+
+ls32        =  h16 ":" h16  | IPv4address
+                  
+h16         = hexdigit{4}
+
+IPv4address = decoctet "." decoctet "." decoctet "." decoctet
+
+decoctet   = digit*                 
+                 
+
+regname    =  (unreserved | pctencoded | subdelims)+
+
+
+query       =  < (pchar | "/" | "?")+ > { $$ = mk_str(yytext); } 
+
+fragment    = < (pchar | "/" | "?" )+ > { $$ = mk_str(yytext); }
+
+reserved    = gendelims | subdelims
+
+gendelims  = ":" | "/" | "?" | "#" | "[" | "]" | "@"
+
+subdelims  = "!" | "$" | "&" | "'" | "(" | ")"
+                  | "*" | "+" | "," | ";" | "="
+
+unreserved  = alpha | digit | "-" | "." | "_" | "~"
+
+pctencoded = "%" hexdigit
+ 
+alpha2 = < [a-zA-Z]+ [a-zA-Z.]+ >
+alpha =  [a-zA-Z]
+digit = [0-9]
+hexdigit = [0-9a-fA-F]{2}
+
+EOF = !.
+
+%%
