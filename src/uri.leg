@@ -99,8 +99,7 @@ subdelims  = "!" | "$" | "&" | "'" | "(" | ")"
 unreserved  = alpha | digit | "-" | "." | "_" | "~"
 
 pctencoded = "%" hexdigit
- 
-alpha2 = < [a-zA-Z]+ [a-zA-Z.]+ >
+
 alpha =  [a-zA-Z]
 digit = [0-9]
 hexdigit = [0-9a-fA-F]{2}

@@ -31,6 +31,7 @@ element *mk_integer(const char *value) {
 uri_t *mk_uri(element *scheme, element *hir, element *q, element *f) {
   uri_t *uri = malloc(sizeof(uri_t));
   *uri = (uri_t){0};
+
   if (scheme) {
     uri->scheme = scheme->value.string;
     free(scheme);
@@ -56,6 +57,7 @@ uri_t *mk_uri(element *scheme, element *hir, element *q, element *f) {
   }
 
   if (f) {
+    printf("FRAGMENT %p\n", f);
     uri->fragment = f->value.string;
     free(f);
   }

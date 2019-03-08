@@ -10,10 +10,22 @@ extern uri_t *parse_result; /* Results of parse. */
 
 uri_t *parse_uri(const char *input) {
   charbuf = input;
-  parse_result = NULL;
+  
   int rc = yyparsefrom(yy_start);
+  yyrelease();
+  
+  charbuf = NULL;
 
-  return parse_result;
+  if (!rc) 
+    return NULL;
+
+
+  
+  
+  uri_t *uri = parse_result;
+  parse_result = NULL;
+
+  return uri;
 }
 
 void free_uri(uri_t *uri) {
